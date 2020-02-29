@@ -1,5 +1,7 @@
 # Tot.app addons
 
+[Tot.app](https://tot.rocks) - An elegant, simple way to collect & edit text on your Mac, iPhone, and iPad.
+
 ## Bash
 
 Copy `bash/tot` to `~/bin/tot`.
@@ -38,4 +40,3 @@ Examples:
   ### Add to Tot
 
   * Appends text to the first Tot dot.
-  
