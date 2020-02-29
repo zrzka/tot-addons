@@ -1,0 +1,164 @@
+#!/usr/bin/env bash
+
+# Fork of gruber's tot.sh https://gist.github.com/gruber/b18d8b53385fa612713754799ed4d0a2
+# which is a fork of chockenberry's tot.sh https://gist.github.com/chockenberry/d33ef5b6e6da4a3e4aa9b07b093d3c23
+
+# Exit immediately if a pipeline returns a non-zero status.
+set -e
+# If set, the return value of a pipeline is the value of the last (rightmost) command
+# to exit with a non-zero status, or zero if all commands in the pipeline exit successfully.
+set -o pipefail    
+
+basename=$(basename "$0")
+
+#
+# Helpers
+#
+# All functions expect that the global `dot` variable is set & validated.
+#
+
+function print_usage() {
+    cat << END
+Usage: ${basename} <dot> [ <command> ] [ <file> | - ]
+
+Options:
+
+  <dot>           dot number (1 to 7) or 0 as a first empty dot  
+  <command>       see Commands
+  <file>          file path to read contents from or just - (stdin)
+
+Commands:
+
+  activate        select dot & activate Tot.app (default command if not provided)
+  p|print         print dot contents
+  a|append        append file/stdin contents to dot
+  c|clear         remove dot contents
+  r|replace       replace dot contents with file/stdin
+
+Examples:
+
+  $ ${basename} 2                        # activate Tot.app and select second dot
+  $ ${basename} 2 print                  # print second dot contents to stdout
+  $ ${basename} 2 clear                  # clear contents of second dot
+  $ cal -h | ${basename} 1 append -      # append a calendar to first dot
+  $ ${basename} 2 append MyApp.crash     # append a crash report to second dot
+  $ ${basename} 2 replace MyApp.crash    # replace second dot contents with a crash report
+END
+}
+
+function get_url_encoded_content_of() {
+    local file=$1
+
+    # $(< "${file}" python3 ...) doesn't handle stdin (-) well, but cat does
+    # shellcheck disable=SC2002
+    cat "${file}" | python3 -c 'import urllib.parse; import sys; print(urllib.parse.quote(sys.stdin.read()))'
+}
+
+function tell_tot_to() {
+    local command=$1
+
+    osascript -e "tell application \"Tot\" to ${command}"
+}
+
+function tell_tot_to_append_content_of() {    
+    local file=$1
+    local content
+
+    content=$(get_url_encoded_content_of "${file}")
+    tell_tot_to "open location \"tot://${dot}/append?text=${content}\""
+}
+
+function tell_tot_to_replace_content_with() {
+    local file=$1
+    local content
+
+    content=$(get_url_encoded_content_of "${file}")
+    tell_tot_to "open location \"tot://${dot}/replace?text=${content}\""
+}
+
+function replace_zero_dot_with_first_empty_dot() {
+    local testdot
+    local content
+
+    if ! [[ ${dot} = "0" ]]; then
+        return 0
+    fi
+
+    for testdot in {1..7}
+    do
+        content=$(tell_tot_to "open location \"tot://${testdot}/content\"")
+
+        # Matching whitespace-only strings in Bash: https://stackoverflow.com/questions/9767644/
+        if ! [[ $content =~ [^[:space:]] ]]; then
+            # clear contents of dot, in case there's whitespace:
+            tell_tot_to "open location \"tot://${testdot}/replace?text=\""
+
+            dot=$testdot
+            break
+        fi
+    done
+
+    if (( dot == 0 )); then
+        >&2 echo "error: no empty dots"
+        return 1
+    fi
+}
+
+#
+# Main
+#
+
+if [ -z "$*" ]; then
+    print_usage
+    exit 1
+fi
+
+#
+# Sort of input validation
+#
+
+dot="$1"
+replace_zero_dot_with_first_empty_dot
+if ! [[ $dot =~ ^[1-7]$ ]]; then
+    >&2 echo "error: invalid dot number ${dot}"
+    exit 1
+fi
+
+command="${2:-activate}"
+input="$3"
+
+#
+# Commands
+#
+
+case "${command}" in
+    activate)
+        # Switch dot & activate Tot
+        tell_tot_to "open location \"tot://${dot}\""
+        tell_tot_to "activate"
+        ;;
+
+    p|print)
+        # Print contents of dot
+        tell_tot_to "open location \"tot://${dot}/content\""
+        ;;
+
+    c|clear)
+        # Clear contents of dot
+        tell_tot_to "open location \"tot://${dot}/replace?text=\""
+        ;;
+
+    r|replace)
+        # Replace contents of dot
+        tell_tot_to_replace_content_with "${input}"
+        ;;
+
+    a|append)
+        # Append contents to dot
+        tell_tot_to_append_content_of "${input}"
+        ;;
+
+    *)
+        print_usage
+        exit 1
+esac
