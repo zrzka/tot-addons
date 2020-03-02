@@ -45,6 +45,8 @@
 			<string>default.scpt</string>
 		</dict>
 	</dict>
+	<key>LBTextInputTitle</key>
+	<string>Text to append to the first dot</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2020 Robert Vojta (Zrzka). All rights reserved.</string>
 </dict>
