@@ -13,7 +13,9 @@ Options:
 
   <dot>           dot number (1 to 7) or 0 as a first empty dot
   <command>       see Commands
-  <file>          file path to read contents from or just - (stdin)
+  <file>          file path to read contents from
+                  - for stdin
+                  omit for stdin
 
 Commands:
 
@@ -29,8 +31,13 @@ Examples:
   $ tot 2 print                  # print second dot contents to stdout
   $ tot 2 clear                  # clear contents of second dot
   $ cal -h | tot 1 append -      # append a calendar to first dot
+  $ cal -h | tot 1 append        # append a calendar to first dot (fallback to stdin)
   $ tot 2 append MyApp.crash     # append a crash report to second dot
   $ tot 2 replace MyApp.crash    # replace second dot contents with a crash report
+  $ tot 2 a << END               # append two lines to second dot (fallback to stdin)
+  heredoc> 1st line
+  heredoc> 2nd line
+  heredoc> END
   ```
 
   ## LaunchBar
