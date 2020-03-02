@@ -10,6 +10,8 @@
 	<string>Add to Tot</string>
 	<key>CFBundleVersion</key>
 	<string>1.0</string>
+	<key>LBAbbreviation</key>
+	<string>att</string>
 	<key>LBAssociatedApplication</key>
 	<string>com.iconfactory.Tot</string>
 	<key>LBDescription</key>
