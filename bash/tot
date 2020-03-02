@@ -18,18 +18,21 @@ basename=$(basename "$0")
 #
 
 function print_usage() {
-    cat << END
+    cat << USAGE
 Usage: ${basename} <dot> [ <command> ] [ <file> | - ]
 
-Options:
+<dot>:
 
-  <dot>           dot number (1 to 7) or 0 as a first empty dot  
-  <command>       see Commands
-  <file>          file path to read contents from
-                  - for stdin
-                  omit for stdin
+  0|e|empty               1st EMPTY dot (can contain whitespaces)
+  1|y|yellow              1st dot
+  2|o|orange              2nd dot
+  3|r|red                 3rd dot
+  4|p|purple              4th dot
+  5|b|blue                5th dot
+  6|t|turquoise|c|cyan    6th dot
+  7|g|green               7th dot
 
-Commands:
+<command>:
 
   activate        select dot & activate Tot.app (default command if not provided)
   p|print         print dot contents
@@ -37,10 +40,15 @@ Commands:
   c|clear         remove dot contents
   r|replace       replace dot contents with file/stdin
 
+<file>:
+
+  path to a regular file (anything accepted by the cat command)
+  use - for stdin (default if not provided)
+
 Examples:
 
   $ ${basename} 2                        # activate Tot.app and select second dot
-  $ ${basename} 2 print                  # print second dot contents to stdout
+  $ ${basename} orange print             # print second dot contents to stdout
   $ ${basename} 2 clear                  # clear contents of second dot
   $ cal -h | ${basename} 1 append -      # append a calendar to first dot
   $ cal -h | ${basename} 1 append        # append a calendar to first dot (fallback to stdin)
@@ -50,7 +58,7 @@ Examples:
   heredoc> 1st line
   heredoc> 2nd line
   heredoc> END
-END
+USAGE
 }
 
 function get_url_encoded_content_of() {
@@ -111,6 +119,44 @@ function replace_zero_dot_with_first_empty_dot() {
     fi
 }
 
+# Martin Walk's idea https://gist.github.com/MW3000/73489fc57359ac3b72e19f102efaab56#file-tot-sh-L84-L103
+
+function replace_dot_name_with_number() {
+    case "${dot}" in
+        e|empty)
+            dot=0
+            ;;
+
+        y|yellow)        
+            dot=1
+            ;;
+
+        o|orange)
+            dot=2
+            ;;
+
+        r|red)
+            dot=3
+            ;;
+
+        p|purple)
+            dot=4
+            ;;
+
+        b|blue)
+            dot=5
+            ;;
+
+        t|turquoise|c|cyan)
+            dot=6
+            ;;
+
+        g|green)
+            dot=7
+            ;;
+  esac
+}
+
 #
 # Main
 #
@@ -127,6 +173,7 @@ fi
 # Valid dot range is 1-7 (inclusive). User can provide 0 which means
 # first empty dot (can contain just whitespaces).
 dot="$1"
+replace_dot_name_with_number
 replace_zero_dot_with_first_empty_dot
 if ! [[ $dot =~ ^[1-7]$ ]]; then
     >&2 echo "error: invalid dot number ${dot}"

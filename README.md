@@ -9,15 +9,18 @@ Copy `bash/tot` to `~/bin/tot`.
 ```shell
 Usage: tot <dot> [ <command> ] [ <file> | - ]
 
-Options:
+<dot>:
 
-  <dot>           dot number (1 to 7) or 0 as a first empty dot
-  <command>       see Commands
-  <file>          file path to read contents from
-                  - for stdin
-                  omit for stdin
+  0|e|empty               1st EMPTY dot (can contain whitespaces)
+  1|y|yellow              1st dot
+  2|o|orange              2nd dot
+  3|r|red                 3rd dot
+  4|p|purple              4th dot
+  5|b|blue                5th dot
+  6|t|turquoise|c|cyan    6th dot
+  7|g|green               7th dot
 
-Commands:
+<command>:
 
   activate        select dot & activate Tot.app (default command if not provided)
   p|print         print dot contents
@@ -25,10 +28,15 @@ Commands:
   c|clear         remove dot contents
   r|replace       replace dot contents with file/stdin
 
+<file>:
+
+  path to a regular file (anything accepted by the cat command)
+  use - for stdin (default if not provided)
+
 Examples:
 
   $ tot 2                        # activate Tot.app and select second dot
-  $ tot 2 print                  # print second dot contents to stdout
+  $ tot orange print             # print second dot contents to stdout
   $ tot 2 clear                  # clear contents of second dot
   $ cal -h | tot 1 append -      # append a calendar to first dot
   $ cal -h | tot 1 append        # append a calendar to first dot (fallback to stdin)
