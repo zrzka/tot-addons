@@ -46,4 +46,5 @@ Examples:
 
   ### Add to Tot
 
-  * Appends text to the first Tot dot.
+  * Abbreviation: `att`
+  * Description: Appends text to the first Tot dot.
