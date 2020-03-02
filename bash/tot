@@ -25,7 +25,9 @@ Options:
 
   <dot>           dot number (1 to 7) or 0 as a first empty dot  
   <command>       see Commands
-  <file>          file path to read contents from or just - (stdin)
+  <file>          file path to read contents from
+                  - for stdin
+                  omit for stdin
 
 Commands:
 
@@ -41,8 +43,13 @@ Examples:
   $ ${basename} 2 print                  # print second dot contents to stdout
   $ ${basename} 2 clear                  # clear contents of second dot
   $ cal -h | ${basename} 1 append -      # append a calendar to first dot
+  $ cal -h | ${basename} 1 append        # append a calendar to first dot (fallback to stdin)
   $ ${basename} 2 append MyApp.crash     # append a crash report to second dot
   $ ${basename} 2 replace MyApp.crash    # replace second dot contents with a crash report
+  $ ${basename} 2 a << END               # append two lines to second dot (fallback to stdin)
+  heredoc> 1st line
+  heredoc> 2nd line
+  heredoc> END
 END
 }
 
@@ -117,6 +124,8 @@ fi
 # Sort of input validation
 #
 
+# Valid dot range is 1-7 (inclusive). User can provide 0 which means
+# first empty dot (can contain just whitespaces).
 dot="$1"
 replace_zero_dot_with_first_empty_dot
 if ! [[ $dot =~ ^[1-7]$ ]]; then
@@ -124,8 +133,11 @@ if ! [[ $dot =~ ^[1-7]$ ]]; then
     exit 1
 fi
 
+# Default to activate command
 command="${2:-activate}"
-input="$3"
+
+# Default to stdin if no input is provided
+input="${3:--}"
 
 #
 # Commands
