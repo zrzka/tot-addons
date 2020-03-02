@@ -2,9 +2,27 @@
 
 [Tot.app](https://tot.rocks) - An elegant, simple way to collect & edit text on your Mac, iPhone, and iPad.
 
-## Bash
+## LaunchBar Actions
 
-Copy `bash/tot` to `~/bin/tot`.
+Copy all actions to the `~/Library/Application\ Support/LaunchBar/Actions`.
+
+### Add to Tot
+
+* Abbreviation: `att`
+* Description: Appends text to the first Tot dot.
+
+## Bash Script
+
+### Installation
+
+```shell
+$ brew tap zrzka/homebrew-tap
+$ brew install zrzka/homebrew-tap/tot
+```
+
+Or just copy the  `bash/tot` to the `~/bin` folder. There're no any dependencies.
+
+### Usage
 
 ```shell
 Usage: tot <dot> [ <command> ] [ <file> | - ]
@@ -47,12 +65,3 @@ Examples:
   heredoc> 2nd line
   heredoc> END
   ```
-
-  ## LaunchBar
-
-  Copy all actions to the `~/Library/Application\ Support/LaunchBar/Actions`.
-
-  ### Add to Tot
-
-  * Abbreviation: `att`
-  * Description: Appends text to the first Tot dot.
